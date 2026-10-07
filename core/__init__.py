@@ -1,0 +1,1 @@
+"""Core mouse-jiggler services."""
