@@ -1,0 +1,56 @@
+name: Release Mouse Jiggler
+
+on:
+  push:
+    branches:
+      - release/v1.0.0
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Build Mouse.exe
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name Mouse Mouse.py
+
+      - name: Create source package
+        shell: pwsh
+        run: |
+          $sourceDir = "release/Mouse-Jiggler-v1.0.0"
+          New-Item -ItemType Directory -Force $sourceDir | Out-Null
+          Copy-Item Mouse.py $sourceDir/
+          Copy-Item README.md $sourceDir/
+          Copy-Item requirements.txt $sourceDir/
+          Copy-Item build.ps1 $sourceDir/
+          Copy-Item Mouse.spec $sourceDir/
+          Copy-Item core $sourceDir/core -Recurse
+          Copy-Item ui $sourceDir/ui -Recurse
+          Compress-Archive -Path "$sourceDir/*" -DestinationPath "release/Mouse-Jiggler-v1.0.0-source.zip" -Force
+
+      - name: Create or update GitHub Release v1.0.0
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: Mouse Jiggler v1.0.0
+          target_commitish: release/v1.0.0
+          generate_release_notes: true
+          files: |
+            dist/Mouse.exe
+            Mouse.py
+            release/Mouse-Jiggler-v1.0.0-source.zip
