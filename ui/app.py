@@ -134,14 +134,6 @@ class MouseJigglerApp:
             padx=(5, 0),
         )
 
-        ttk.Label(
-            outer,
-            text="Pause freezes the timer and movement. Resume continues from where you paused.",
-            style="Subtitle.TLabel",
-            wraplength=380,
-            justify="center",
-        ).pack(pady=(16, 0))
-
     def _field(
         self,
         parent: ttk.Widget,
